@@ -8,6 +8,8 @@ import os
 from sklearn.ensemble import RandomForestClassifier
 # Importa o codificador LabelEncoder para transformar as variáveis de texto em numéricas
 from sklearn.preprocessing import LabelEncoder
+# Importa a biblioteca plotly express para criar os gráficos interativos
+import plotly.express as px
 
 # Define o título principal da aplicação na página web
 st.title("Previsão de Inadimplência de Clientes")
@@ -30,6 +32,9 @@ def carregar_e_preparar_dados():
 
 # Chama a função para obter o conjunto de dados carregado
 dados = carregar_e_preparar_dados()
+
+# Cria uma cópia limpa dos dados para usar na parte visual sem codificação numérica
+dados_visuais = dados.copy()
 
 # Cria um dicionário vazio para armazenar os codificadores de categorias
 codificadores = {}
@@ -142,3 +147,49 @@ if se_clicado:
     else:
         # Exibe uma mensagem de sucesso verde indicando baixo risco de inadimplência
         st.success("Sucesso: O modelo prevê que o cliente será ADIMPLENTE.")
+    
+    # Adiciona uma divisória visual antes das informações e gráficos complementares
+    st.markdown("--- ")
+    # Cria um subtítulo para a seção de estatísticas e painel visual
+    st.subheader("Painel de Análise e Estatísticas Base do Banco")
+    
+    # Divide a tela em três colunas para posicionar os cartões de métricas gerais
+    col1, col2, col3 = st.columns(3)
+    
+    # Calcula a taxa de inadimplência geral na base histórica cadastrada
+    taxa_inadimplencia = (dados_visuais['Situação'] == 'Inadimplente').mean() * 100
+    # Exibe o primeiro cartão com a taxa geral de inadimplência da carteira
+    col1.metric(label="Taxa de Inadimplência Geral", value=f"{taxa_inadimplencia:.1f}%")
+    
+    # Calcula a renda mensal média de todos os clientes registrados
+    renda_media = dados_visuais['Renda Mensal (R$)'].mean()
+    # Exibe o segundo cartão com a média da renda mensal
+    col2.metric(label="Renda Mensal Média", value=f"R$ {renda_media:,.2f}")
+    
+    # Calcula a média do tempo de relacionamento com os clientes cadastrados
+    tempo_medio = dados_visuais['Tempo de Relacionamento (anos)'].mean()
+    # Exibe o terceiro cartão com a média de anos de relacionamento
+    col3.metric(label="Relacionamento Médio", value=f"{tempo_medio:.1f} anos")
+    
+    # Cria um novo gráfico de dispersão interativo com o Plotly para mapear o perfil
+    fig = px.scatter(
+        dados_visuais,
+        x="Idade",
+        y="Renda Mensal (R$)",
+        color="Situação",
+        title="Distribuição de Clientes por Idade e Renda",
+        labels={"Renda Mensal (R$)": "Renda (R$)", "Situação": "Legenda"},
+        color_discrete_map={"Adimplente": "#2ca02c", "Inadimplente": "#d62728"}
+    )
+    
+    # Adiciona uma marcação visual (estrela preta de tamanho grande) para representar o cliente avaliado
+    fig.add_scatter(
+        x=[idade],
+        y=[renda],
+        mode="markers",
+        marker=dict(color="black", size=15, symbol="star", line=dict(width=2, color="white")),
+        name="Cliente Avaliado"
+    )
+    
+    # Renderiza o gráfico do Plotly estruturado diretamente na página do Streamlit
+    st.plotly_chart(fig, use_container_width=True)
