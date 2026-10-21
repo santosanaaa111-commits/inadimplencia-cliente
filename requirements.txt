@@ -1,0 +1,8 @@
+# Define a biblioteca streamlit para rodar o painel interativo
+streamlit
+# Define a biblioteca pandas para a leitura e tratamento de dados
+pandas
+# Define a biblioteca scikit-learn para treinar e rodar o modelo preditivo
+scikit-learn
+# Define a biblioteca openpyxl para permitir que o pandas leia arquivos do Excel
+openpyxl
