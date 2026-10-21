@@ -6,3 +6,5 @@ pandas
 scikit-learn
 # Define a biblioteca openpyxl para permitir que o pandas leia arquivos do Excel
 openpyxl
+# Define a biblioteca plotly para gerar os gráficos interativos no painel
+plotly
